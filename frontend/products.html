@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Produtos - Cupcake Delícias</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <a href="index.html">Cupcake Delícias</a>
+            </div>
+            <ul>
+                <li><a href="products.html">Produtos</a></li>
+                <li id="nav-login-prod"><a href="login.html">Login</a></li>
+                <li id="nav-register-prod"><a href="register.html">Registrar</a></li>
+                <li id="nav-logout-prod" style="display:none;"><a href="#" onclick="logout()">Sair</a></li>
+                <li id="nav-admin-prod" style="display:none;"><a href="admin.html">Admin</a></li>
+                <li><a href="cart.html">Carrinho (<span id="cart-count">0</span>)</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="products-list">
+            <h2>Nossos Deliciosos Cupcakes</h2>
+            <div class="product-grid" id="products-container">
+                <!-- Produtos serão carregados aqui via JS -->
+            </div>
+            <p id="products-message" class="error-message"></p>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2023 Cupcake Delícias. Todos os direitos reservados.</p>
+    </footer>
+
+    <script src="js/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+    const token = localStorage.getItem('token');
+    const userRole = localStorage.getItem('role');
+
+    console.log("DOMContentLoaded - Token:", token);
+    console.log("DOMContentLoaded - User Role:", userRole);
+
+    if (token) {
+        document.getElementById('nav-login-prod').style.display = 'none';
+        document.getElementById('nav-register-prod').style.display = 'none';
+        document.getElementById('nav-logout-prod').style.display = 'list-item';
+
+        if (userRole === 'admin') {
+            console.log("Usuário é ADMIN. Tentando exibir nav-admin.");
+            const navAdmin = document.getElementById('nav-admin-prod');
+            if (navAdmin) {
+                navAdmin.style.display = 'list-item';
+                console.log("nav-admin exibido.");
+            } else {
+                console.log("ERRO: Elemento #nav-admin não encontrado!");
+            }
+        } else {
+            console.log("Usuário não é ADMIN ou userRole é nulo/vazio. userRole:", userRole);
+        }
+    } else {
+        console.log("Nenhum token encontrado. Mantendo links de login/registro visíveis.");
+        // Opcional: garantir que nav-admin está escondido se não há token
+        const navAdmin = document.getElementById('nav-admin-prod');
+        if (navAdmin) navAdmin.style.display = 'none';
+    }
+    updateCartCount();
+    loadAllProducts();
+ 
+});
+
+        async function loadAllProducts() {
+            try {
+                const response = await fetch('http://127.0.0.1:5000/api/products');
+                const data = await response.json()
+                const products = data.data;
+                const container = document.getElementById('products-container');
+                container.innerHTML = ''; // Limpa antes de adicionar
+
+                if (products.length === 0) {
+                    document.getElementById('products-message').textContent = 'Nenhum produto disponível no momento.';
+                    return;
+                }
+
+                products.forEach(product => {
+                    const productCard = `
+                        <div class="product-card">
+                            <img src="${product.image_url}" alt="${product.name}">
+                            <h3>${product.name}</h3>
+                            <p>${product.description}</p>
+                            <p class="price">R$ ${product.price.toFixed(2)}</p>
+                            <button onclick="addToCart(${product.id}, '${product.name}', ${product.price})">Adicionar ao Carrinho</button>
+                        </div>
+                    `;
+                    container.innerHTML += productCard;
+                });
+
+            } catch (error) {
+                console.error('Erro ao carregar todos os produtos:', error);
+                document.getElementById('products-message').textContent = 'Não foi possível carregar os produtos.';
+            }
+        }
+    </script>
+</body>
+</html>

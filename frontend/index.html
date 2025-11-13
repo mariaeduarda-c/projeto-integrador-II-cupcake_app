@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cupcake Delícias</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Box Icones -->
+    <link href='https://cdn.boxicons.com/3.0.3/fonts/basic/boxicons.min.css' rel='stylesheet'>
+    <link href='https://cdn.boxicons.com/3.0.3/fonts/brands/boxicons-brands.min.css' rel='stylesheet'>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo" class="nav container">
+                <a href="index.html">Cupcakes Delícias</a>
+            </div>
+            <ul>
+                <li><a href="products.html">Produtos</a></li>
+                <li id="nav-login"><a href="login.html">Login</a></li>
+                <li id="nav-register"><a href="register.html">Registrar</a></li>
+                <li id="nav-logout" style="display:none;"><a href="#" onclick="logout()">Sair</a></li>
+                <li id="nav-admin" style="display:none;"><a href="admin.html">Admin</a></li>
+                <li><a href="cart.html">Carrinho (<span id="cart-count">0</span>)</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <h1>Bem-vindo à Cupcake Delícias!</h1>
+            <p>Os mais saborosos cupcakes feitos com amor.</p>
+            <a href="products.html" class="button">Ver Nossos Cupcakes</a>
+        </section>
+
+        <section class="featured-products">
+            <h2>Nossos Destaques</h2>
+            <div class="product-grid" id="featured-products-container">
+                <!-- Produtos em destaque serão carregados aqui via JS -->
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2023 Cupcake Delícias. Todos os direitos reservados.</p>
+    </footer>
+
+    <script src="js/script.js"></script>
+    <script>
+        // Exemplo de como o JS pode interagir para mostrar/esconder itens da navegação
+        document.addEventListener('DOMContentLoaded', () => {
+    const token = localStorage.getItem('token');
+    const userRole = localStorage.getItem('role');
+
+
+    if (token) {
+        document.getElementById('nav-login').style.display = 'none';
+        document.getElementById('nav-register').style.display = 'none';
+        document.getElementById('nav-logout').style.display = 'list-item';
+
+        if (userRole === 'admin') {
+            console.log("Usuário é ADMIN. Tentando exibir nav-admin.");
+            const navAdmin = document.getElementById('nav-admin');
+            if (navAdmin) {
+                navAdmin.style.display = 'list-item';
+                console.log("nav-admin exibido.");
+            } else {
+                console.log("ERRO: Elemento #nav-admin não encontrado!");
+            }
+        } else {
+            console.log("Usuário não é ADMIN ou userRole é nulo/vazio. userRole:", userRole);
+        }
+    } else {
+        console.log("Nenhum token encontrado. Mantendo links de login/registro visíveis.");
+        // Opcional: garantir que nav-admin está escondido se não há token
+        const navAdmin = document.getElementById('nav-admin');
+        if (navAdmin) navAdmin.style.display = 'none';
+    }
+    updateCartCount();
+    loadFeaturedProducts();
+});
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('role');
+            localStorage.removeItem('cart');
+            window.location.href = 'index.html';
+        }
+
+        async function loadFeaturedProducts() {
+            try {
+                const response = await fetch('http://127.0.0.1:5000/api/products');
+                const data = await response.json()
+                const products = data.data;
+                const container = document.getElementById('featured-products-container');
+                container.innerHTML = ''; // Limpa antes de adicionar
+
+                // Pega os primeiros 3 produtos como destaque
+               if (products && Array.isArray(products)) {
+            // Pega os primeiros 3 produtos como destaque
+            products.slice(0, 3).forEach(product => {
+                const productCard = `
+                    <div class="product-card">
+                        <img src="${product.image_url}" alt="${product.name}">
+                        <h3>${product.name}</h3>
+                        <p>${product.description}</p>
+                        <p class="price">R$ ${product.price.toFixed(2)}</p>
+                        <button onclick="addToCart(${product.id}, '${product.name}', ${product.price})">Adicionar ao Carrinho</button>
+                    </div>
+                `;
+                container.innerHTML += productCard;
+            });
+        }
+
+            } catch (error) {
+                console.error('Erro ao carregar produtos em destaque:', error);
+                document.getElementById('featured-products-container').innerHTML = '<p>Não foi possível carregar os produtos em destaque.</p>';
+            }
+        }
+    </script>
+</body>
+</html>

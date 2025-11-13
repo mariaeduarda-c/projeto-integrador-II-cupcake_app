@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Cupcake Delícias</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <a href="index.html">Cupcake Delícias</a>
+            </div>
+            <ul>
+                <li><a href="products.html">Produtos</a></li>
+                <li><a href="login.html">Login</a></li>
+                <li><a href="register.html">Registrar</a></li>
+                <li><a href="cart.html">Carrinho (<span id="cart-count">0</span>)</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="auth-container">
+        <section>
+            <h2>Login</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Senha:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="button">Entrar</button>
+                <p id="login-message" class="error-message"></p>
+                <p>Ainda não tem uma conta? <a href="register.html">Registre-se aqui</a></p>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2023 Cupcake Delícias. Todos os direitos reservados.</p>
+    </footer>
+
+    <script src="js/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCartCount();
+            const loginForm = document.getElementById('login-form');
+            const loginMessage = document.getElementById('login-message');
+
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+
+                try {
+                    const response = await fetch('http://127.0.0.1:5000/api/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ email, password })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        console.log("Dados da resposta do login:", data);
+                        localStorage.setItem('token', data.data.token);
+                        localStorage.setItem('role', data.data.role); // Armazena a função do usuário
+                        window.location.href = 'index.html'; // Redireciona para a página inicial
+                    } else {
+                        loginMessage.textContent = data.message || 'Erro ao fazer login.';
+                        loginMessage.style.color = 'red';
+                    }
+                } catch (error) {
+                    console.error('Erro na requisição de login:', error);
+                    loginMessage.textContent = 'Erro de conexão. Tente novamente.';
+                    loginMessage.style.color = 'red';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

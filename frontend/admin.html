@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Cupcake Delícias</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <a href="index.html">Cupcake Delícias</a>
+            </div>
+            <ul>
+                <li><a href="products.html">Produtos</a></li>
+                <li id="nav-logout-admin" style="display:none;"><a href="#" onclick="logout()">Sair</a></li>
+                <li id="nav-admin-admin" style="display:none;"><a href="admin.html">Admin</a></li>
+                <li><a href="cart.html">Carrinho (<span id="cart-count">0</span>)</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="admin-container">
+        <section>
+            <h2>Painel de Administração</h2>
+            <div id="admin-message" class="error-message"></div>
+
+            <div class="admin-section">
+                <h3>Gerenciar Produtos</h3>
+                <form id="product-form">
+                    <input type="hidden" id="product-id" value="">
+                    <div class="form-group">
+                        <label for="product-name">Nome:</label>
+                        <input type="text" id="product-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-description">Descrição:</label>
+                        <textarea id="product-description" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-price">Preço:</label>
+                        <input type="number" id="product-price" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-image-url">URL da Imagem:</label>
+                        <input type="url" id="product-image-url" required>
+                    </div>
+                    <button type="submit" class="button">Adicionar/Atualizar Produto</button>
+                    <button type="button" class="button secondary" onclick="clearProductForm()">Limpar Formulário</button>
+                </form>
+
+                <h4>Lista de Produtos</h4>
+                <ul id="product-list">
+                    <!-- Produtos serão listados aqui -->
+                </ul>
+            </div>
+
+            <div class="admin-section">
+                <h3>Gerenciar Usuários</h3>
+                <ul id="user-list">
+                    <!-- Usuários serão listados aqui -->
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2023 Cupcake Delícias. Todos os direitos reservados.</p>
+    </footer>
+
+    <script src="js/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCartCount();
+            const token = localStorage.getItem('token');
+            const userRole = localStorage.getItem('role');
+            const adminMessage = document.getElementById('admin-message');
+
+            if (!token || userRole !== 'admin') {
+                adminMessage.textContent = 'Acesso negado. Apenas administradores podem acessar esta página.';
+                adminMessage.style.color = 'red';
+                setTimeout(() => { window.location.href = 'index.html'; }, 2000);
+                return;
+            }
+
+            document.getElementById('nav-logout-admin').style.display = 'list-item';
+            document.getElementById('nav-admin-admin').style.display = 'list-item';
+
+            loadAdminProducts();
+            loadAdminUsers();
+
+            document.getElementById('product-form').addEventListener('submit', handleProductSubmit);
+        });
+
+        async function loadAdminProducts() {
+            const token = localStorage.getItem('token');
+            const productList = document.getElementById('product-list');
+            productList.innerHTML = '';
+            try {
+                const response = await fetch('http://127.0.0.1:5000/api/products', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const products = await response.json();
+
+                if (products.length === 0) {
+                    productList.innerHTML = '<li>Nenhum produto cadastrado.</li>';
+                    return;
+                }
+
+                products.forEach(product => {
+                    const listItem = document.createElement('li');
+                    listItem.innerHTML = `
+                        <span>${product.name} - R$ ${product.price.toFixed(2)}</span>
+                        <div>
+                            <button onclick="editProduct(${product.id}, '${product.name}', '${product.description}', ${product.price}, '${product.image_url}')">Editar</button>
+                            <button onclick="deleteProduct(${product.id})" class="danger">Excluir</button>
+                        </div>
+                    `;
+                    productList.appendChild(listItem);
+                });
+
+            } catch (error) {
+                console.error('Erro ao carregar produtos para admin:', error);
+                document.getElementById('admin-message').textContent = 'Erro ao carregar produtos.';
+                document.getElementById('admin-message').style.color = 'red';
+            }
+        }
+
+        function clearProductForm() {
+            document.getElementById('product-id').value = '';
+            document.getElementById('product-name').value = '';
+            document.getElementById('product-description').value = '';
+            document.getElementById('product-price').value = '';
+            document.getElementById('product-image-url').value = '';
+            document.querySelector('#product-form button[type="submit"]').textContent = 'Adicionar/Atualizar Produto';
+        }
+
+        function editProduct(id, name, description, price, imageUrl) {
+            document.getElementById('product-id').value = id;
+            document.getElementById('product-name').value = name;
+            document.getElementById('product-description').value = description;
+            document.getElementById('product-price').value = price;
+            document.getElementById('product-image-url').value = imageUrl;
+            document.querySelector('#product-form button[type="submit"]').textContent = 'Atualizar Produto';
+        }
+
+        async function handleProductSubmit(e) {
+            e.preventDefault();
+            const token = localStorage.getItem('token');
+            const productId = document.getElementById('product-id').value;
+            const name = document.getElementById('product-name').value;
+            const description = document.getElementById('product-description').value;
+            const price = parseFloat(document.getElementById('product-price').value);
+            const image_url = document.getElementById('product-image-url').value;
+
+            const productData = { name, description, price, image_url };
+            let url = 'http://127.0.0.1:5000/api/admin/products';
+            let method = 'POST';
+
+            if (productId) {
+                url = `http://127.0.0.1:5000/api/admin/products/${productId}`;
+                method = 'PUT';
+            }
+
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(productData)
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    document.getElementById('admin-message').textContent = data.message;
+                    document.getElementById('admin-message').style.color = 'green';
+                    clearProductForm();
+                    loadAdminProducts();
+                } else {
+                    document.getElementById('admin-message').textContent = data.message || 'Erro ao salvar produto.';
+                    document.getElementById('admin-message').style.color = 'red';
+                }
+            } catch (error) {
+                console.error('Erro ao salvar produto:', error);
+                document.getElementById('admin-message').textContent = 'Erro de conexão ao salvar produto.';
+                document.getElementById('admin-message').style.color = 'red';
+            }
+        }
+
+        async function deleteProduct(productId) {
+            if (!confirm('Tem certeza que deseja excluir este produto?')) return;
+
+            const token = localStorage.getItem('token');
+            try {
+                const response = await fetch(`http://127.0.0.1:5000/api/admin/products/${productId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    document.getElementById('admin-message').textContent = data.message;
+                    document.getElementById('admin-message').style.color = 'green';
+                    loadAdminProducts();
+                } else {
+                    document.getElementById('admin-message').textContent = data.message || 'Erro ao excluir produto.';
+                    document.getElementById('admin-message').style.color = 'red';
+                }
+            } catch (error) {
+                console.error('Erro ao excluir produto:', error);
+                document.getElementById('admin-message').textContent = 'Erro de conexão ao excluir produto.';
+                document.getElementById('admin-message').style.color = 'red';
+            }
+        }
+
+        async function loadAdminUsers() {
+            const token = localStorage.getItem('token');
+            const userList = document.getElementById('user-list');
+            userList.innerHTML = '';
+            try {
+                const response = await fetch('http://127.0.0.1:5000/api/admin/users', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const users = await response.json();
+
+                if (users.length === 0) {
+                    userList.innerHTML = '<li>Nenhum usuário cadastrado.</li>';
+                    return;
+                }
+
+                users.forEach(user => {
+                    const listItem = document.createElement('li');
+                    listItem.innerHTML = `
+                        <span>${user.username} (${user.email}) - Função: ${user.role}</span>
+                        <div>
+                            <select onchange="updateUserRole(${user.id}, this.value)">
+                                <option value="user" ${user.role === 'user' ? 'selected' : ''}>User</option>
+                                <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option>
+                            </select>
+                        </div>
+                    `;
+                    userList.appendChild(listItem);
+                });
+
+            } catch (error) {
+                console.error('Erro ao carregar usuários para admin:', error);
+                document.getElementById('admin-message').textContent = 'Erro ao carregar usuários.';
+                document.getElementById('admin-message').style.color = 'red';
+            }
+        }
+
+        async function updateUserRole(userId, newRole) {
+            const token = localStorage.getItem('token');
+            try {
+                const response = await fetch(`http://127.0.0.1:5000/api/admin/users/${userId}/role`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ role: newRole })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    document.getElementById('admin-message').textContent = data.message;
+                    document.getElementById('admin-message').style.color = 'green';
+                    loadAdminUsers(); // Recarrega a lista para mostrar a alteração
+                } else {
+                    document.getElementById('admin-message').textContent = data.message || 'Erro ao atualizar função do usuário.';
+                    document.getElementById('admin-message').style.color = 'red';
+                }
+            } catch (error) {
+                console.error('Erro ao atualizar função do usuário:', error);
+                document.getElementById('admin-message').textContent = 'Erro de conexão ao atualizar função do usuário.';
+                document.getElementById('admin-message').style.color = 'red';
+            }
+        }
+    </script>
+</body>
+</html>

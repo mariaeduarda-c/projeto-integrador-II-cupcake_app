@@ -1,0 +1,1 @@
+# Este arquivo pode ficar vazio, serve para indicar que 'tests' é um pacote Python.

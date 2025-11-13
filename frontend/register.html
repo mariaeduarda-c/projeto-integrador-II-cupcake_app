@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro - Cupcake Delícias</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <a href="index.html">Cupcake Delícias</a>
+            </div>
+            <ul>
+                <li><a href="products.html">Produtos</a></li>
+                <li><a href="login.html">Login</a></li>
+                <li><a href="register.html">Registrar</a></li>
+                <li><a href="cart.html">Carrinho (<span id="cart-count">0</span>)</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="auth-container">
+        <section>
+            <h2>Registrar</h2>
+            <form id="register-form">
+                <div class="form-group">
+                    <label for="username">Nome de Usuário:</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Senha:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="button">Registrar</button>
+                <p id="register-message" class="error-message"></p>
+                <p>Já tem uma conta? <a href="login.html">Faça login aqui</a></p>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2023 Cupcake Delícias. Todos os direitos reservados.</p>
+    </footer>
+
+    <script src="js/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCartCount();
+            const registerForm = document.getElementById('register-form');
+            const registerMessage = document.getElementById('register-message');
+
+            registerForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const username = document.getElementById('username').value;
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+
+                try {
+                    const response = await fetch('http://127.0.0.1:5000/api/register', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ username, email, password })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        registerMessage.textContent = data.message;
+                        registerMessage.style.color = 'green';
+                        registerForm.reset();
+                        // Opcional: redirecionar para login após alguns segundos
+                        setTimeout(() => {
+                            window.location.href = 'login.html';
+                        }, 2000);
+                    } else {
+                        registerMessage.textContent = data.message || 'Erro ao registrar.';
+                        registerMessage.style.color = 'red';
+                    }
+                } catch (error) {
+                    console.error('Erro na requisição de registro:', error);
+                    registerMessage.textContent = 'Erro de conexão. Tente novamente.';
+                    registerMessage.style.color = 'red';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
