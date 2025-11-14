@@ -60,4 +60,4 @@ def test_get_single_product_not_found(product_setup_client):
     response = product_setup_client.get('/api/products/999') 
     assert response.status_code == 404
     assert 'message' in json.loads(response.data)
-    assert json.loads(response.data)['message'] == 'Item não encontrado'
+    assert 'Produto não encontrado.' in json.loads(response.data)['message']

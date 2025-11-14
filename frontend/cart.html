@@ -5,12 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Carrinho - Cupcake Delícias</title>
     <link rel="stylesheet" href="css/style.css">
+    <link href='https://cdn.boxicons.com/3.0.3/fonts/basic/boxicons.min.css' rel='stylesheet'>
+    <link href='https://cdn.boxicons.com/3.0.3/fonts/brands/boxicons-brands.min.css' rel='stylesheet'>
 </head>
-<body>
+<body style="background-color:white;">
     <header>
         <nav>
             <div class="logo">
-                <a href="index.html">Cupcake Delícias</a>
+                <a href="index.html"><img src="images/logo.png" alt=""></a>
             </div>
             <ul>
                 <li><a href="products.html">Produtos</a></li>
@@ -25,7 +27,7 @@
 
     <main>
         <section class="cart-summary">
-            <h2>Seu Carrinho</h2>
+            <h2>Seu Carrinho de Compras</h2>
             <div id="cart-items">
                 <!-- Itens do carrinho serão carregados aqui via JS -->
                 <p>Seu carrinho está vazio.</p>
@@ -42,119 +44,186 @@
     </main>
 
     <footer>
-        <p>&copy; 2023 Cupcake Delícias. Todos os direitos reservados.</p>
+       <div class="footer">
+        <div class="footer-content container">
+            <div class="footer-box">
+                <a href="index.html" class="footer-logo">
+                    <img src="images/logo-clara.png" alt="">
+                </a>
+                <p>O sabor que conquista no primeiro pedaço.</p>
+                <div class="social">
+                    <a href="#"><i class='bxl  bx-instagram-alt'></i> </a>
+                    <a href="#"><i class='bxl  bx-pinterest'></i></a>
+                    <a href="#"><i class='bxl  bx-tiktok'></i> </a>
+                    <a href="#"><i class='bxl  bx-linkedin'></i> </a>
+                </div>
+            </div>
+            <div class="footer-box">
+                <h3>Horário de Funcionamento</h3>
+                <p><Span>Seg</Span>: 9:00 - 20:30</p>
+                <p><Span>Ter</Span>: 9:00 - 20:30</p>
+                <p><Span>Qua</Span>: 9:00 - 20:30</p>
+                <p><Span>Qui</Span>: 9:00 - 20:30</p>
+                <p><Span>Sex</Span>: 9:00 - 20:30</p>
+                <p><Span>Sáb</Span>: 9:00 - 20:30</p>
+                <p><Span>Dom</Span>: Fechado</p>
+            </div>
+            <div class="footer-box">
+                <h3>Informações</h3>
+                <a href="index.html">Ínicio</a>
+                <a href="products.html">Produtos</a>
+                <a href="login.html">Login</a>
+                
+            </div>
+            <div class="footer-box">
+                <h3>Contato</h3>
+                <p>+551234567890</p>
+                <p>contato@Cupcake Delícias.com<br>
+                </p>
+                <p>Rua das Flores, nº 128 — Bairro Jardim Doce Vida Cidade: Vila Encantada — SP, CEP 04567-230</p>
+            </div>
+        </div>
+        <p class="copyright">&#169; 2025, Cupcake Delícias</p>
+     </div>
     </footer>
 
     <script src="js/script.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-    const token = localStorage.getItem('token');
-    const userRole = localStorage.getItem('role');
+    document.addEventListener('DOMContentLoaded', () => {
+        const token = localStorage.getItem('token');
+        const userRole = localStorage.getItem('role');
 
-    console.log("DOMContentLoaded - Token:", token);
-    console.log("DOMContentLoaded - User Role:", userRole);
+        if (token) {
+            document.getElementById('nav-login-cart').style.display = 'none';
+            document.getElementById('nav-register-cart').style.display = 'none';
+            document.getElementById('nav-logout-cart').style.display = 'list-item';
 
-    if (token) {
-        document.getElementById('nav-login-cart').style.display = 'none';
-        document.getElementById('nav-register-cart').style.display = 'none';
-        document.getElementById('nav-logout-cart').style.display = 'list-item';
-
-        if (userRole === 'admin') {
-            console.log("Usuário é ADMIN. Tentando exibir nav-admin.");
-            const navAdmin = document.getElementById('nav-admin-cart');
-            if (navAdmin) {
-                navAdmin.style.display = 'list-item';
-                console.log("nav-admin exibido.");
-            } else {
-                console.log("ERRO: Elemento #nav-admin não encontrado!");
+            if (userRole === 'admin') {
+                const navAdmin = document.getElementById('nav-admin-cart');
+                if (navAdmin) navAdmin.style.display = 'list-item';
             }
         } else {
-            console.log("Usuário não é ADMIN ou userRole é nulo/vazio. userRole:", userRole);
+            const navAdmin = document.getElementById('nav-admin-cart');
+            if (navAdmin) navAdmin.style.display = 'none';
         }
-    } else {
-        console.log("Nenhum token encontrado. Mantendo links de login/registro visíveis.");
-        // Opcional: garantir que nav-admin está escondido se não há token
-        const navAdmin = document.getElementById('nav-admin');
-        if (navAdmin) navAdmin.style.display = 'none';
+
+        // As funções updateCartCount e logout devem estar no seu script.js
+        updateCartCount(); 
+        displayCartItems(); // Chama a nova função para carregar o carrinho
+    });
+
+    // 🆕 FUNÇÃO AUXILIAR: Salva o carrinho e atualiza a interface
+    function updateCartInStorage(cart) {
+        localStorage.setItem('cart', JSON.stringify(cart));
+        updateCartCount();
+        displayCartItems(); // Chama a função para redesenhar a lista de itens
     }
-    updateCartCount();
-    displayCartItems();
-});
 
-        function displayCartItems() {
-            const cart = JSON.parse(localStorage.getItem('cart')) || [];
-            const cartItemsContainer = document.getElementById('cart-items');
-            const cartTotalPriceSpan = document.getElementById('cart-total-price');
-            let total = 0;
+    // 🛠️ FUNÇÃO MODIFICADA: Renderiza os itens do carrinho com os novos botões
+    function displayCartItems() {
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        const cartItemsContainer = document.getElementById('cart-items');
+        const cartTotalPriceSpan = document.getElementById('cart-total-price');
+        let total = 0;
 
-            cartItemsContainer.innerHTML = ''; // Limpa antes de preencher
+        cartItemsContainer.innerHTML = ''; // Limpa antes de preencher
 
-            if (cart.length === 0) {
-                cartItemsContainer.innerHTML = '<p>Seu carrinho está vazio.</p>';
+        if (cart.length === 0) {
+            cartItemsContainer.innerHTML = '<p>Seu carrinho está vazio.</p>';
+        } else {
+            cart.forEach(item => {
+                const itemElement = document.createElement('div');
+                itemElement.classList.add('cart-item');
+                // 👇 NOVO HTML: Adiciona botões de + e - e o botão de lixo
+                itemElement.innerHTML = `
+                    <div class="cart-item-details">
+                        <span class="item-name">${item.name}</span>
+                        <span class="item-price">R$ ${item.price.toFixed(2)}</span>
+                    </div>
+                    <div class="cart-item-controls">
+                        <button class="quantity-button" onclick="decreaseQuantity(${item.id})">-</button>
+                        <span class="item-quantity" id="quantity-${item.id}">${item.quantity}</span>
+                        <button class="quantity-button" onclick="increaseQuantity(${item.id})">+</button>
+                        <span class="item-subtotal">R$ ${(item.price * item.quantity).toFixed(2)}</span>
+                        <button class="remove-all-button" onclick="removeAllOfItem(${item.id})"><i class='bx bx-trash'></i></button>
+                    </div>
+                `;
+                cartItemsContainer.appendChild(itemElement);
+                total += item.price * item.quantity;
+            });
+        }
+        cartTotalPriceSpan.textContent = total.toFixed(2);
+    }
+
+    // 🆕 FUNÇÃO ADICIONADA: Aumenta a quantidade do item em 1
+    function increaseQuantity(productId) {
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        const item = cart.find(item => item.id === productId);
+
+        if (item) {
+            item.quantity++;
+        }
+        updateCartInStorage(cart);
+    }
+
+    // 🆕 FUNÇÃO ADICIONADA (substitui o antigo removeFromCart): Diminui a quantidade em 1. Se for 1, remove o item.
+    function decreaseQuantity(productId) {
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        const itemIndex = cart.findIndex(item => item.id === productId);
+
+        if (itemIndex > -1) {
+            if (cart[itemIndex].quantity > 1) {
+                cart[itemIndex].quantity--;
             } else {
-                cart.forEach(item => {
-                    const itemElement = document.createElement('div');
-                    itemElement.classList.add('cart-item');
-                    itemElement.innerHTML = `
-                        <span>${item.name} (x${item.quantity})</span>
-                        <span>R$ ${(item.price * item.quantity).toFixed(2)}</span>
-                        <button class="remove-button" onclick="removeFromCart(${item.id})">Remover</button>
-                    `;
-                    cartItemsContainer.appendChild(itemElement);
-                    total += item.price * item.quantity;
-                });
+                // Se a quantidade for 1, remove o item totalmente
+                cart.splice(itemIndex, 1);
             }
-            cartTotalPriceSpan.textContent = total.toFixed(2);
+        }
+        updateCartInStorage(cart);
+    }
+
+    // 🆕 FUNÇÃO ADICIONADA: Remove TODAS as unidades de um item (Botão de Lixo)
+    function removeAllOfItem(productId) {
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        const newCart = cart.filter(item => item.id !== productId);
+        updateCartInStorage(newCart);
+    }
+    
+    // ❌ FUNÇÃO REMOVIDA: A função `removeFromCart` original foi substituída por `decreaseQuantity`.
+    // ... restante das funções `clearCart()` e `checkout()` não foram alteradas ...
+
+    function clearCart() {
+        localStorage.removeItem('cart');
+        updateCartCount();
+        displayCartItems();
+        document.getElementById('cart-message').textContent = 'Carrinho limpo.';
+        document.getElementById('cart-message').style.color = 'green';
+    }
+
+    function checkout() {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            document.getElementById('cart-message').textContent = 'Você precisa fazer login para finalizar a compra.';
+            document.getElementById('cart-message').style.color = 'red';
+            setTimeout(() => { window.location.href = 'login.html'; }, 2000);
+            return;
         }
 
-        function removeFromCart(productId) {
-            let cart = JSON.parse(localStorage.getItem('cart')) || [];
-            const itemIndex = cart.findIndex(item => item.id === productId);
-
-            if (itemIndex > -1) {
-                if (cart[itemIndex].quantity > 1) {
-                    cart[itemIndex].quantity--;
-                } else {
-                    cart.splice(itemIndex, 1);
-                }
-            }
-            localStorage.setItem('cart', JSON.stringify(cart));
-            updateCartCount();
-            displayCartItems();
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        if (cart.length === 0) {
+            document.getElementById('cart-message').textContent = 'Seu carrinho está vazio.';
+            document.getElementById('cart-message').style.color = 'red';
+            return;
         }
 
-        function clearCart() {
-            localStorage.removeItem('cart');
-            updateCartCount();
-            displayCartItems();
-            document.getElementById('cart-message').textContent = 'Carrinho limpo.';
-            document.getElementById('cart-message').style.color = 'green';
-        }
-
-        function checkout() {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                document.getElementById('cart-message').textContent = 'Você precisa fazer login para finalizar a compra.';
-                document.getElementById('cart-message').style.color = 'red';
-                setTimeout(() => { window.location.href = 'login.html'; }, 2000);
-                return;
-            }
-
-            const cart = JSON.parse(localStorage.getItem('cart')) || [];
-            if (cart.length === 0) {
-                document.getElementById('cart-message').textContent = 'Seu carrinho está vazio.';
-                document.getElementById('cart-message').style.color = 'red';
-                return;
-            }
-
-            // Lógica de finalização de compra (enviar para o backend)
-            // Por simplicidade, vamos apenas limpar o carrinho e simular o sucesso
-            alert('Compra finalizada com sucesso! (Esta é uma simulação)');
-            clearCart();
-            document.getElementById('cart-message').textContent = 'Obrigado pela sua compra!';
-            document.getElementById('cart-message').style.color = 'green';
-            setTimeout(() => { window.location.href = 'index.html'; }, 3000);
-        }
+        // Lógica de finalização de compra (enviar para o backend)
+        // Por simplicidade, vamos apenas limpar o carrinho e simular o sucesso
+        alert('Compra finalizada com sucesso! (Esta é uma simulação)');
+        clearCart();
+        document.getElementById('cart-message').textContent = 'Obrigado pela sua compra!';
+        document.getElementById('cart-message').style.color = 'green';
+        setTimeout(() => { window.location.href = 'index.html'; }, 3000);
+    }
     </script>
 </body>
 </html>

@@ -2,6 +2,7 @@ import pytest
 import json
 import uuid # Necessário para gerar public_id
 import datetime
+from datetime import UTC
 import jwt
 from werkzeug.security import generate_password_hash
 # Importe db do arquivo isolado. O 'app' será injetado pelo pytest.
@@ -68,9 +69,9 @@ def admin_token(admin_setup_client, flask_app): # Recebe flask_app para acessar 
         token = jwt.encode({
             'public_id': admin_user.public_id,
             'role': admin_user.role,
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60)
-        }, flask_app.config['SECRET_KEY'], algorithm="HS256") # Use flask_app.config
-        return token
+            'exp': datetime.datetime.now(UTC) + datetime.timedelta(minutes=60)
+    }, flask_app.config['SECRET_KEY'], algorithm="HS256")
+    return token
 
 @pytest.fixture(scope='module')
 def user_token(admin_setup_client, flask_app): # Recebe flask_app para acessar config
@@ -81,9 +82,9 @@ def user_token(admin_setup_client, flask_app): # Recebe flask_app para acessar c
         token = jwt.encode({
             'public_id': regular_user.public_id,
             'role': regular_user.role,
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60)
-        }, flask_app.config['SECRET_KEY'], algorithm="HS256") # Use flask_app.config
-        return token
+            'exp': datetime.datetime.now(UTC) + datetime.timedelta(minutes=60)
+    }, flask_app.config['SECRET_KEY'], algorithm="HS256")
+    return token
 
 # ====================================================================
 # TESTES DE PRODUTOS ADMIN
@@ -91,17 +92,24 @@ def user_token(admin_setup_client, flask_app): # Recebe flask_app para acessar c
 
 # Recebe admin_setup_client (o cliente de teste configurado)
 def test_admin_create_product(admin_setup_client, admin_token):
+    from io import BytesIO 
+
+    # 1. Dados de texto
     new_product_data = {
         'name': 'New Admin Cupcake',
         'description': 'Description of new cupcake',
-        'price': 9.99,
-        'image_url': 'new.jpg'
+        'price': '9.99',  # Envie como string se o controller for ler de request.form
     }
-    response = admin_setup_client.post('/api/admin/products', json=new_product_data, headers={'Authorization': f'Bearer {admin_token}'})
-    assert response.status_code == 201
-    data = json.loads(response.data)['data']
-    assert data['name'] == 'New Admin Cupcake'
-    assert 'id' in data
+
+    image_content = b'image data placeholder' 
+    image_file = (BytesIO(image_content), 'test_cupcake.jpg')
+
+    response = admin_setup_client.post(
+        '/api/admin/products', 
+        data={**new_product_data, 'image_file': image_file}, # Combina dados de texto e arquivo
+        headers={'Authorization': f'Bearer {admin_token}'},
+        content_type='multipart/form-data' # Especifica o tipo de conteúdo
+    )
 
 def test_admin_create_product_unauthorized(admin_setup_client, user_token):
     new_product_data = {

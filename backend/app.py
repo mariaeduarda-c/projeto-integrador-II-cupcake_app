@@ -9,10 +9,9 @@ from functools import wraps
 import os
 import uuid
 from flask_cors import CORS
-  # Adicione o uuid para gerar public_id
+from werkzeug.utils import secure_filename
+  
 
-# IMPORTAÇÕES DE MÓDULOS MVC REMOVIDAS DAQUI
-# MOVIDAS PARA DENTRO DE create_app()
 
 def create_app(test_config=None):
     app = Flask(__name__)
@@ -42,10 +41,16 @@ def create_app(test_config=None):
     from services.auth_service import AuthService
     
     # 3. Inicializa as classes de serviço, modelo e controller
+    # 💡 CÓDIGO CORRIGIDO E ADICIONADO AQUI: Define e Cria a Pasta de Upload
+    # -----------------------------------------------------------------
+    UPLOAD_FOLDER = os.path.join(os.getcwd(), 'static', 'images')
+    if not os.path.exists(UPLOAD_FOLDER):
+        os.makedirs(UPLOAD_FOLDER)
+
     auth_service = AuthService(db, User)
     auth_controller = AuthController(auth_service, APIView)
     product_controller = ProductController(db, Product, APIView)
-    admin_controller = AdminController(db, User, Product, APIView)
+    admin_controller = AdminController(db, User, Product, APIView, UPLOAD_FOLDER)
 
     # -----------------------------------------------------------
     # Decoradores (Definidos DENTRO da função ou usando o app que foi criado)

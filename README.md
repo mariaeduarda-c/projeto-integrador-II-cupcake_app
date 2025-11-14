@@ -1,58 +1,63 @@
-# Cupcake App
+# 🧁 Cupcake App - E-commerce de Cupcakes Gourmet
 
-Este é um aplicativo de e-commerce de cupcakes que permite aos usuários navegar por produtos, adicionar itens ao carrinho, realizar compras (após cadastro) e gerenciar produtos e usuários através de um painel de administração.
+Este repositório contém todos os artefatos do projeto "Cupcake App", um aplicativo de e-commerce completo projetado para uma loja virtual de cupcakes gourmet. O objetivo é simular uma aplicação real de ponta a ponta, desde o catálogo de produtos até o painel administrativo.
 
-## Tecnologias Utilizadas
+---
 
-**Front-end:**
-*   HTML5
-*   CSS3
-*   JavaScript
+## 💡 Sobre o Projeto
 
-**Back-end:**
-*   Python 3
-*   Flask (microframework web)
-*   SQLite (banco de dados simples para este exemplo)
-*   Padrão de Design MVC (Model-View-Controller)
+O **Cupcake App** é uma aplicação web completa que permite aos usuários navegar por um catálogo virtual, gerenciar um carrinho de compras e realizar a jornada de checkout.
 
-## Estrutura do Projeto
+O projeto foi estruturado para demonstrar o conhecimento em arquitetura e desenvolvimento web, utilizando o padrão **Model-View-Controller (MVC)** no backend para garantir a separação de responsabilidades e facilitar a manutenção.
 
-O projeto é dividido em `frontend` e `backend`.
+### Principais Funcionalidades
 
-### `frontend/`
+| Área | Funcionalidades |
+| :--- | :--- |
+| **Cliente** | Navegação por catálogo de produtos, visualização de detalhes, adição/remoção de itens no carrinho, **Cadastro (Register)** e **Login** para simular o checkout. |
+| **Administrador** | Acesso ao Painel de Administração (`/admin.html`) para **Gerenciar Produtos** (CRUD) e **Gerenciar Usuários** (visualização e alteração de função/role). |
+| **Geral** | Interface **Responsiva** (Desktop e Mobile) e integração completa via API RESTful. |
 
-Contém todos os arquivos da interface do usuário:
-*   `css/`: Arquivos CSS para estilização.
-*   `js/`: Arquivos JavaScript para interatividade.
-*   `.html`: Páginas HTML.
+---
 
-### `backend/`
+## 💻 Tecnologias Utilizadas
 
-Contém a lógica do servidor, implementada em Python com Flask:
-*   `controllers/`: Lógica de requisições e respostas, intermediando Model e View.
-*   `models/`: Representação dos dados e lógica de negócios.
-*   `views/`: Formatação das respostas (neste caso, JSON para a API).
-*   `services/`: Lógica de negócios específica que pode ser reutilizada entre controllers (ex: autenticação).
-*   `tests/`: Testes unitários para o back-end.
-*   `app.py`: Ponto de entrada da aplicação Flask.
-*   `database.py`: Gerenciamento da conexão com o banco de dados.
+| Componente | Tecnologia | Detalhe |
+| :--- | :--- | :--- |
+| **Front-end** | **HTML5, CSS3, JavaScript** | Desenvolvimento de interface do usuário, responsividade e lógica de requisições. |
+| **Back-end** | **Python 3** | Linguagem principal de desenvolvimento. |
+| **Framework** | **Flask** | Microframework para a criação da API RESTful. |
+| **Banco de Dados** | **SQLite** | Banco de dados simples para prototipagem e persistência local. |
+| **Padrão** | **MVC** | Organização da lógica do backend (Controllers, Models, Views). |
+| **Autenticação** | **JWT** | Tokens JWT (JSON Web Tokens) para controle de acesso (Login e rotas de Admin). |
 
-## Como Executar
+---
+
+## 📂 Estrutura do Repositório
+
+O projeto é dividido em `frontend/` (Cliente) e `backend/` (Servidor/API).
+
+. ├── backend/ │ ├── controllers/ # Lógica da API (ex: AdminController, ProductController). │ ├── models/ # Classes de dados (ex: User, Product). │ ├── views/ # Formatação de respostas JSON (APIView). │ ├── services/ # Lógica reutilizável (ex: funções de autenticação). │ ├── tests/ # Testes unitários do backend (pytest). │ ├── app.py # Ponto de entrada da aplicação Flask. │ └── database.py # Configuração do Flask-SQLAlchemy. └── frontend/ ├── css/ # Arquivos de estilização (style.css). ├── js/ # Lógica de interação e requisições AJAX. ├── index.html # Página principal. ├── products.html # Catálogo de produtos. └── ...demais páginas.
+
+
+---
+
+## 🚀 Como Executar o Projeto
 
 ### Pré-requisitos
 
-*   Python 3.x
-*   pip (gerenciador de pacotes Python)
+* **Python 3.x**
+* **pip** (gerenciador de pacotes Python)
 
-### Instalação
+### 1. Instalação
 
-1.  Clone o repositório:
+1.  **Clone o repositório:**
     ```bash
-    git clone https://github.com/seu-usuario/cupcake_app.git
+    git clone [https://github.com/seu-usuario/cupcake_app.git](https://github.com/seu-usuario/cupcake_app.git)
     cd cupcake_app
     ```
 
-2.  Crie e ative um ambiente virtual (recomendado):
+2.  **Crie e ative um ambiente virtual (Recomendado):**
     ```bash
     python -m venv venv
     # No Windows
@@ -61,59 +66,74 @@ Contém a lógica do servidor, implementada em Python com Flask:
     source venv/bin/activate
     ```
 
-3.  Instale as dependências do back-end:
+3.  **Instale as dependências do back-end:**
     ```bash
-    pip install Flask Flask-SQLAlchemy Werkzeug
+    pip install Flask Flask-SQLAlchemy Werkzeug pytest PyJWT
     ```
 
-### Executando o Back-end
+### 2. Executando o Back-end (API)
 
-1.  Navegue até a pasta `backend`:
+1.  Navegue até a pasta `backend/`:
     ```bash
     cd backend
     ```
 
-2.  Execute o arquivo `app.py`:
+2.  Execute o servidor Flask:
     ```bash
     python app.py
     ```
-    O servidor estará rodando em `http://127.0.0.1:5000`.
+    ✅ O servidor estará rodando em **`http://127.0.0.1:5000`**.
 
-### Abrindo o Front-end
+### 3. Abrindo o Front-end (Cliente)
 
-Abra os arquivos HTML diretamente no seu navegador. O JavaScript fará requisições para o back-end rodando em `http://127.0.0.1:5000`.
+1.  Abra a pasta `frontend/`.
+2.  Abra o arquivo **`index.html`** diretamente no seu navegador (ex: `file:///caminho/para/frontend/index.html`).
+    *O JavaScript fará requisições para a API rodando localmente.*
 
-## Testes
+---
 
-Para executar os testes do back-end:
+## 🧪 Testes Unitários
 
-1.  Navegue até a pasta `backend/tests`:
+Para garantir a confiabilidade da lógica de negócios e das rotas de administração.
+
+1.  Navegue até a pasta `backend/`:
     ```bash
-    cd backend/tests
+    cd backend
     ```
 
-2.  Execute os testes usando `pytest` (instale-o se ainda não tiver: `pip install pytest`):
+2.  Execute os testes usando `pytest`:
     ```bash
     pytest
     ```
+    *(Você verá a saída dos testes, confirmando que todos os endpoints de CRUD e autenticação estão funcionando.)*
 
-## Endpoints da API (Back-end)
+---
 
-### Autenticação
-*   `POST /api/register`: Registra um novo usuário.
-*   `POST /api/login`: Autentica um usuário.
+## 🧭 Endpoints da API RESTful (Back-end)
 
-### Produtos
-*   `GET /api/products`: Obtém todos os produtos.
-*   `GET /api/products/<id>`: Obtém um produto específico.
+| Rota | Método | Descrição | Requer Token? |
+| :--- | :--- | :--- | :--- |
+| `/api/register` | `POST` | Cria uma nova conta de usuário. | Não |
+| `/api/login` | `POST` | Gera um token de autenticação (JWT). | Não |
+| `/api/products` | `GET` | Lista todos os produtos disponíveis. | Não |
+| `/api/products/<id>` | `GET` | Detalhes de um produto específico. | Não |
+| `/api/admin/products` | `POST` | Cria um novo produto no catálogo. | Sim (Admin) |
+| `/api/admin/products/<id>`| `PUT` | Atualiza um produto existente. | Sim (Admin) |
+| `/api/admin/products/<id>`| `DELETE` | Remove um produto do catálogo. | Sim (Admin) |
+| `/api/admin/users` | `GET` | Lista todos os usuários cadastrados. | Sim (Admin) |
+| `/api/admin/users/<id>/role`| `PUT` | Altera a função (role) de um usuário (user/admin). | Sim (Admin) |
 
-### Administração
-*   `POST /api/admin/products`: Adiciona um novo produto (apenas admin).
-*   `PUT /api/admin/products/<id>`: Atualiza um produto existente (apenas admin).
-*   `DELETE /api/admin/products/<id>`: Deleta um produto (apenas admin).
-*   `GET /api/admin/users`: Lista todos os usuários (apenas admin).
-*   `PUT /api/admin/users/<id>/role`: Atualiza a função de um usuário (apenas admin).
+---
 
-## Licença
+## 📄 Licença
 
-Este projeto está licenciado sob a Licença MIT.
+Este projeto está licenciado sob a **Licença MIT**.
+
+---
+
+# Autor
+
+- **Nome:** Maria Eduarda Caixeta do Sacramento
+- **RGM:** 30330378
+- **Curso:** Engenharia de Software
+- **Instituição:** Cruzeiro do Sul Virtual 

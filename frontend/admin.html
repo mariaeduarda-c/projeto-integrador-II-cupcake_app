@@ -5,12 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Cupcake Delícias</title>
     <link rel="stylesheet" href="css/style.css">
+    <link href='https://cdn.boxicons.com/3.0.3/fonts/basic/boxicons.min.css' rel='stylesheet'>
+    <link href='https://cdn.boxicons.com/3.0.3/fonts/brands/boxicons-brands.min.css' rel='stylesheet'>
 </head>
 <body>
     <header>
         <nav>
             <div class="logo">
-                <a href="index.html">Cupcake Delícias</a>
+                <a href="index.html"><img src="images/logo.png" alt=""></a>
             </div>
             <ul>
                 <li><a href="products.html">Produtos</a></li>
@@ -43,10 +45,12 @@
                         <input type="number" id="product-price" step="0.01" required>
                     </div>
                     <div class="form-group">
-                        <label for="product-image-url">URL da Imagem:</label>
-                        <input type="url" id="product-image-url" required>
+                        <label for="product-image-file">Selecione a Imagem:</label>
+                        <input type="file" id="product-image-file" accept="image/*">
+                        <input type="hidden" id="product-image-url">
                     </div>
-                    <button type="submit" class="button">Adicionar/Atualizar Produto</button>
+                    <div id="current-image-preview" style="grid-column: 1 / 3; margin-top: 10px;"></div>
+                    <button type="submit" class="button">Adicionar/ Atualizar Produto</button>
                     <button type="button" class="button secondary" onclick="clearProductForm()">Limpar Formulário</button>
                 </form>
 
@@ -66,7 +70,47 @@
     </main>
 
     <footer>
-        <p>&copy; 2023 Cupcake Delícias. Todos os direitos reservados.</p>
+       <div class="footer">
+        <div class="footer-content container">
+            <div class="footer-box">
+                <a href="index.html" class="footer-logo">
+                    <img src="images/logo-clara.png" alt="">
+                </a>
+                <p>O sabor que conquista no primeiro pedaço.</p>
+                <div class="social">
+                    <a href="#"><i class='bxl  bx-instagram-alt'></i> </a>
+                    <a href="#"><i class='bxl  bx-pinterest'></i></a>
+                    <a href="#"><i class='bxl  bx-tiktok'></i> </a>
+                    <a href="#"><i class='bxl  bx-linkedin'></i> </a>
+                </div>
+            </div>
+            <div class="footer-box">
+                <h3>Horário de Funcionamento</h3>
+                <p><Span>Seg</Span>: 9:00 - 20:30</p>
+                <p><Span>Ter</Span>: 9:00 - 20:30</p>
+                <p><Span>Qua</Span>: 9:00 - 20:30</p>
+                <p><Span>Qui</Span>: 9:00 - 20:30</p>
+                <p><Span>Sex</Span>: 9:00 - 20:30</p>
+                <p><Span>Sáb</Span>: 9:00 - 20:30</p>
+                <p><Span>Dom</Span>: Fechado</p>
+            </div>
+            <div class="footer-box">
+                <h3>Informações</h3>
+                <a href="index.html">Ínicio</a>
+                <a href="products.html">Produtos</a>
+                <a href="login.html">Login</a>
+                
+            </div>
+            <div class="footer-box">
+                <h3>Contato</h3>
+                <p>+551234567890</p>
+                <p>contato@Cupcake Delícias.com<br>
+                </p>
+                <p>Rua das Flores, nº 128 — Bairro Jardim Doce Vida Cidade: Vila Encantada — SP, CEP 04567-230</p>
+            </div>
+        </div>
+        <p class="copyright">&#169; 2025, Cupcake Delícias</p>
+     </div>
     </footer>
 
     <script src="js/script.js"></script>
@@ -94,103 +138,147 @@
         });
 
         async function loadAdminProducts() {
-            const token = localStorage.getItem('token');
-            const productList = document.getElementById('product-list');
-            productList.innerHTML = '';
-            try {
-                const response = await fetch('http://127.0.0.1:5000/api/products', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-                const products = await response.json();
-
-                if (products.length === 0) {
-                    productList.innerHTML = '<li>Nenhum produto cadastrado.</li>';
-                    return;
-                }
-
-                products.forEach(product => {
-                    const listItem = document.createElement('li');
-                    listItem.innerHTML = `
-                        <span>${product.name} - R$ ${product.price.toFixed(2)}</span>
-                        <div>
-                            <button onclick="editProduct(${product.id}, '${product.name}', '${product.description}', ${product.price}, '${product.image_url}')">Editar</button>
-                            <button onclick="deleteProduct(${product.id})" class="danger">Excluir</button>
-                        </div>
-                    `;
-                    productList.appendChild(listItem);
-                });
-
-            } catch (error) {
-                console.error('Erro ao carregar produtos para admin:', error);
-                document.getElementById('admin-message').textContent = 'Erro ao carregar produtos.';
-                document.getElementById('admin-message').style.color = 'red';
+    const token = localStorage.getItem('token');
+    const productList = document.getElementById('product-list');
+    productList.innerHTML = '';
+    try {
+        const response = await fetch('http://127.0.0.1:5000/api/products', {
+            headers: {
+                'Authorization': `Bearer ${token}`
             }
+        });
+        const data = await response.json();
+        
+        // ⚠️ CORREÇÃO CHAVE AQUI:
+        // Acessamos a lista de produtos através da propriedade 'data' do objeto retornado pela API.
+        const products = data.data || data; 
+        
+        if (!products || products.length === 0) {
+            productList.innerHTML = '<li>Nenhum produto cadastrado.</li>';
+            return;
         }
+
+        products.forEach(product => {
+            const listItem = document.createElement('li');
+            listItem.innerHTML = `
+                <span>${product.name} - R$ ${product.price.toFixed(2)}</span>
+                <div>
+                    <button onclick="editProduct(${product.id}, '${product.name}', '${product.description}', ${product.price}, '${product.image_url}')">Editar</button>
+                    <button onclick="deleteProduct(${product.id})" class="danger">Excluir</button>
+                </div>
+            `;
+            productList.appendChild(listItem);
+        });
+
+    } catch (error) {
+        console.error('Erro ao carregar produtos para admin:', error);
+        document.getElementById('admin-message').textContent = 'Erro ao carregar produtos.';
+        document.getElementById('admin-message').style.color = 'red';
+    }
+}
 
         function clearProductForm() {
-            document.getElementById('product-id').value = '';
-            document.getElementById('product-name').value = '';
-            document.getElementById('product-description').value = '';
-            document.getElementById('product-price').value = '';
-            document.getElementById('product-image-url').value = '';
-            document.querySelector('#product-form button[type="submit"]').textContent = 'Adicionar/Atualizar Produto';
-        }
+    document.getElementById('product-id').value = '';
+    document.getElementById('product-name').value = '';
+    document.getElementById('product-description').value = '';
+    document.getElementById('product-price').value = '';
+    
+    // 💡 NOVO: Limpa o campo de arquivo
+    document.getElementById('product-image-file').value = ''; 
+    // 💡 NOVO: Limpa o campo hidden de URL (usado na edição)
+    document.getElementById('product-image-url').value = ''; 
+    // 💡 NOVO: Limpa a pré-visualização
+    document.getElementById('current-image-preview').innerHTML = ''; 
+    
+    document.querySelector('#product-form button[type="submit"]').textContent = 'Adicionar/Atualizar Produto';
+    }
 
-        function editProduct(id, name, description, price, imageUrl) {
-            document.getElementById('product-id').value = id;
-            document.getElementById('product-name').value = name;
-            document.getElementById('product-description').value = description;
-            document.getElementById('product-price').value = price;
-            document.getElementById('product-image-url').value = imageUrl;
-            document.querySelector('#product-form button[type="submit"]').textContent = 'Atualizar Produto';
-        }
+    function editProduct(id, name, description, price, imageUrl) {
+    document.getElementById('product-id').value = id;
+    document.getElementById('product-name').value = name;
+    document.getElementById('product-description').value = description;
+    document.getElementById('product-price').value = price;
+    
+    // 💡 NOVO: Preenche o campo hidden com a URL antiga
+    document.getElementById('product-image-url').value = imageUrl; 
+    
+    // 💡 NOVO: Exibe a pré-visualização da imagem atual
+    const previewContainer = document.getElementById('current-image-preview');
+    previewContainer.innerHTML = `
+        <p style="font-weight: bold;">Imagem Atual:</p>
+        <img src="${imageUrl}" alt="Imagem Atual" style="max-width: 150px; height: auto; border: 1px solid #ccc; border-radius: 5px;">
+    `;
+    
+    // 💡 NOVO: Limpa o campo de seleção de arquivo
+    document.getElementById('product-image-file').value = '';
+    
+    document.querySelector('#product-form button[type="submit"]').textContent = 'Atualizar Produto';
+    }
 
         async function handleProductSubmit(e) {
-            e.preventDefault();
-            const token = localStorage.getItem('token');
-            const productId = document.getElementById('product-id').value;
-            const name = document.getElementById('product-name').value;
-            const description = document.getElementById('product-description').value;
-            const price = parseFloat(document.getElementById('product-price').value);
-            const image_url = document.getElementById('product-image-url').value;
-
-            const productData = { name, description, price, image_url };
-            let url = 'http://127.0.0.1:5000/api/admin/products';
-            let method = 'POST';
-
-            if (productId) {
-                url = `http://127.0.0.1:5000/api/admin/products/${productId}`;
-                method = 'PUT';
-            }
-
-            try {
-                const response = await fetch(url, {
-                    method: method,
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify(productData)
-                });
-
-                const data = await response.json();
-                if (response.ok) {
-                    document.getElementById('admin-message').textContent = data.message;
-                    document.getElementById('admin-message').style.color = 'green';
-                    clearProductForm();
-                    loadAdminProducts();
-                } else {
-                    document.getElementById('admin-message').textContent = data.message || 'Erro ao salvar produto.';
-                    document.getElementById('admin-message').style.color = 'red';
-                }
-            } catch (error) {
-                console.error('Erro ao salvar produto:', error);
-                document.getElementById('admin-message').textContent = 'Erro de conexão ao salvar produto.';
-                document.getElementById('admin-message').style.color = 'red';
-            }
+    e.preventDefault();
+    const token = localStorage.getItem('token');
+    const productId = document.getElementById('product-id').value;
+    
+    // 💡 NOVO: Usando FormData para enviar texto e arquivo juntos
+    const formData = new FormData();
+    
+    // Adiciona os dados de texto
+    formData.append('name', document.getElementById('product-name').value);
+    formData.append('description', document.getElementById('product-description').value);
+    formData.append('price', parseFloat(document.getElementById('product-price').value));
+    
+    // 💡 NOVO: Adiciona o arquivo, se um tiver sido selecionado
+    const imageFile = document.getElementById('product-image-file').files[0];
+    if (imageFile) {
+        formData.append('image_file', imageFile); // 'image_file' é o nome que o Flask vai esperar
+    } else {
+        // Se estiver editando e não mudou o arquivo, envie a URL antiga (se existir)
+        const currentImageUrl = document.getElementById('product-image-url').value;
+        if (currentImageUrl) {
+            formData.append('image_url', currentImageUrl);
         }
+    }
+
+    let url = 'http://127.0.0.1:5000/api/admin/products';
+    let method = 'POST';
+
+    if (productId) {
+        url = `http://127.0.0.1:5000/api/admin/products/${productId}`;
+        method = 'PUT';
+        // ⚠️ Nota: Flask não suporta PUT com FormData nativamente. Usaremos POST e 'override'
+        // Se a sua API do Flask estiver configurada para aceitar POST no lugar de PUT para atualização:
+        // method = 'POST'; // Mantenha PUT se a sua API aceitar, mas POST é mais comum com file upload.
+    }
+
+    try {
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                // ⚠️ IMPORTANTE: NÃO definimos 'Content-Type': 'application/json'
+                // O browser define 'multipart/form-data' automaticamente com o FormData
+                'Authorization': `Bearer ${token}`
+            },
+            body: formData // Enviamos o FormData diretamente
+        });
+
+        // ... o restante da lógica de sucesso/erro permanece o mesmo
+        const data = await response.json();
+        if (response.ok) {
+            document.getElementById('admin-message').textContent = data.message;
+            document.getElementById('admin-message').style.color = 'green';
+            clearProductForm();
+            loadAdminProducts();
+        } else {
+            document.getElementById('admin-message').textContent = data.message || 'Erro ao salvar produto.';
+            document.getElementById('admin-message').style.color = 'red';
+        }
+    } catch (error) {
+        console.error('Erro ao salvar produto:', error);
+        document.getElementById('admin-message').textContent = 'Erro de conexão ao salvar produto.';
+        document.getElementById('admin-message').style.color = 'red';
+    }
+}
 
         async function deleteProduct(productId) {
             if (!confirm('Tem certeza que deseja excluir este produto?')) return;
@@ -220,44 +308,56 @@
             }
         }
 
-        async function loadAdminUsers() {
-            const token = localStorage.getItem('token');
-            const userList = document.getElementById('user-list');
-            userList.innerHTML = '';
-            try {
-                const response = await fetch('http://127.0.0.1:5000/api/admin/users', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-                const users = await response.json();
-
-                if (users.length === 0) {
-                    userList.innerHTML = '<li>Nenhum usuário cadastrado.</li>';
-                    return;
-                }
-
-                users.forEach(user => {
-                    const listItem = document.createElement('li');
-                    listItem.innerHTML = `
-                        <span>${user.username} (${user.email}) - Função: ${user.role}</span>
-                        <div>
-                            <select onchange="updateUserRole(${user.id}, this.value)">
-                                <option value="user" ${user.role === 'user' ? 'selected' : ''}>User</option>
-                                <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option>
-                            </select>
-                        </div>
-                    `;
-                    userList.appendChild(listItem);
-                });
-
-            } catch (error) {
-                console.error('Erro ao carregar usuários para admin:', error);
-                document.getElementById('admin-message').textContent = 'Erro ao carregar usuários.';
-                document.getElementById('admin-message').style.color = 'red';
+        // Função corrigida no bloco <script> do admin.html
+       async function loadAdminUsers() {
+    const token = localStorage.getItem('token');
+    const userList = document.getElementById('user-list');
+    userList.innerHTML = ''; // Limpa a lista
+    
+    try {
+        const response = await fetch('http://127.0.0.1:5000/api/admin/users', {
+            headers: {
+                'Authorization': `Bearer ${token}`
             }
+        });
+        
+        // Verifica se a resposta HTTP é 4xx ou 5xx
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Falha ao carregar usuários da API.');
         }
 
+        const data = await response.json();
+        
+        // 💡 CORREÇÃO CHAVE: Acessa o array de usuários dentro da chave 'data'
+        const users = data.data; 
+
+        if (!users || users.length === 0) {
+            userList.innerHTML = '<li>Nenhum usuário cadastrado.</li>';
+            return;
+        }
+
+        // Monta a lista de usuários com a opção de edição de função
+        users.forEach(user => {
+            const listItem = document.createElement('li');
+            listItem.innerHTML = `
+                <span>${user.username} (${user.email}) - ID: ${user.id}</span>
+                <div>
+                    <select onchange="updateUserRole(${user.id}, this.value)">
+                        <option value="user" ${user.role === 'user' ? 'selected' : ''}>User</option>
+                        <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option>
+                    </select>
+                </div>
+            `;
+            userList.appendChild(listItem);
+        });
+
+    } catch (error) {
+        console.error('Erro ao carregar usuários para admin:', error);
+        document.getElementById('admin-message').textContent = error.message || 'Erro de conexão ao carregar usuários.';
+        document.getElementById('admin-message').style.color = 'red';
+    }
+}
         async function updateUserRole(userId, newRole) {
             const token = localStorage.getItem('token');
             try {
