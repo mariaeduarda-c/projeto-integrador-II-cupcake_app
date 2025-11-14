@@ -1,5 +1,5 @@
 from flask import request
-from database import db # Importa a instância do db do app principal
+from database import db 
 from models.user_model import User
 from models.product_model import Product
 import os 
@@ -30,7 +30,6 @@ class AdminController:
         
     # --- Gerenciamento de Produtos ---
     def create_product(self):
-        # 💡 NOVO: Dados vêm de request.form (texto) e request.files (arquivo)
         data = request.form
         image_file = request.files.get('image_file')
 
@@ -55,15 +54,12 @@ class AdminController:
             return self.api_view.render_error(f'Erro ao criar produto: {str(e)}', 500)
 
 
-    # 🎯 CORRIGIDO: INDENTAÇÃO INCLUÍDA
     def update_product(self, product_id):
-        # CORREÇÃO 4: Usando db.session.get()
         product = self.db.session.get(self.Product, product_id)
 
         if not product:
             return self.api_view.render_error('Produto não encontrado.', 404)
 
-        # 💡 NOVO: Tenta pegar JSON primeiro, depois form/files
         if request.is_json:
             data = request.get_json()
             image_file = None # Não há upload de arquivo via JSON
@@ -103,8 +99,6 @@ class AdminController:
             self.db.session.rollback()
             return self.api_view.render_error(f'Erro ao atualizar produto: {str(e)}', 500)
 
-
-    # 🎯 CORRIGIDO: INDENTAÇÃO INCLUÍDA
     def delete_product(self, product_id):
         # CORREÇÃO 4: Usando db.session.get()
         product = self.db.session.get(self.Product, product_id)
@@ -119,15 +113,12 @@ class AdminController:
             self.db.session.rollback()
             return self.api_view.render_error(f'Erro ao excluir produto: {str(e)}', 500)
 
-
     # --- Gerenciamento de Usuários ---
-    # 🎯 CORRIGIDO: INDENTAÇÃO INCLUÍDA
+  
     def get_users(self):
         users = self.User.query.all()
         return self.api_view.render_items(users, "Lista de usuários.")
 
-
-    # 🎯 CORRIGIDO: INDENTAÇÃO INCLUÍDA
     def update_user_role(self, user_id):
         # CORREÇÃO 4: Usando db.session.get()
         user = self.db.session.get(self.User, user_id)

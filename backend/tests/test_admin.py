@@ -5,15 +5,9 @@ import datetime
 from datetime import UTC
 import jwt
 from werkzeug.security import generate_password_hash
-# Importe db do arquivo isolado. O 'app' será injetado pelo pytest.
 from database import db 
 from models.user_model import User
 from models.product_model import Product
-
-# ====================================================================
-# FIXTURES (Usam a 'flask_app' que vem do conftest.py)
-# Renomeei 'test_client' para 'admin_setup_client' para evitar conflito com 'client' do conftest
-# ====================================================================
 
 @pytest.fixture(scope='module')
 def admin_setup_client(flask_app):
@@ -61,7 +55,7 @@ def admin_setup_client(flask_app):
 
 
 @pytest.fixture(scope='module')
-def admin_token(admin_setup_client, flask_app): # Recebe flask_app para acessar config
+def admin_token(admin_setup_client, flask_app): 
     """Gera um token JWT válido para o usuário administrador."""
     with flask_app.app_context():
         # Gerar um token diretamente para o admin_user
@@ -74,7 +68,7 @@ def admin_token(admin_setup_client, flask_app): # Recebe flask_app para acessar 
     return token
 
 @pytest.fixture(scope='module')
-def user_token(admin_setup_client, flask_app): # Recebe flask_app para acessar config
+def user_token(admin_setup_client, flask_app): 
     """Gera um token JWT válido para o usuário normal."""
     with flask_app.app_context():
         # Gerar um token diretamente para o regular_user
@@ -98,7 +92,7 @@ def test_admin_create_product(admin_setup_client, admin_token):
     new_product_data = {
         'name': 'New Admin Cupcake',
         'description': 'Description of new cupcake',
-        'price': '9.99',  # Envie como string se o controller for ler de request.form
+        'price': '9.99',  
     }
 
     image_content = b'image data placeholder' 
@@ -106,9 +100,9 @@ def test_admin_create_product(admin_setup_client, admin_token):
 
     response = admin_setup_client.post(
         '/api/admin/products', 
-        data={**new_product_data, 'image_file': image_file}, # Combina dados de texto e arquivo
+        data={**new_product_data, 'image_file': image_file}, 
         headers={'Authorization': f'Bearer {admin_token}'},
-        content_type='multipart/form-data' # Especifica o tipo de conteúdo
+        content_type='multipart/form-data'
     )
 
 def test_admin_create_product_unauthorized(admin_setup_client, user_token):

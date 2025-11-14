@@ -112,14 +112,14 @@
         displayCartItems(); // Chama a nova função para carregar o carrinho
     });
 
-    // 🆕 FUNÇÃO AUXILIAR: Salva o carrinho e atualiza a interface
+    // Salva o carrinho e atualiza a interface
     function updateCartInStorage(cart) {
         localStorage.setItem('cart', JSON.stringify(cart));
         updateCartCount();
         displayCartItems(); // Chama a função para redesenhar a lista de itens
     }
 
-    // 🛠️ FUNÇÃO MODIFICADA: Renderiza os itens do carrinho com os novos botões
+    // Renderiza os itens do carrinho com os novos botões
     function displayCartItems() {
         const cart = JSON.parse(localStorage.getItem('cart')) || [];
         const cartItemsContainer = document.getElementById('cart-items');
@@ -134,7 +134,6 @@
             cart.forEach(item => {
                 const itemElement = document.createElement('div');
                 itemElement.classList.add('cart-item');
-                // 👇 NOVO HTML: Adiciona botões de + e - e o botão de lixo
                 itemElement.innerHTML = `
                     <div class="cart-item-details">
                         <span class="item-name">${item.name}</span>
@@ -155,7 +154,7 @@
         cartTotalPriceSpan.textContent = total.toFixed(2);
     }
 
-    // 🆕 FUNÇÃO ADICIONADA: Aumenta a quantidade do item em 1
+    //Aumenta a quantidade do item em 1//
     function increaseQuantity(productId) {
         let cart = JSON.parse(localStorage.getItem('cart')) || [];
         const item = cart.find(item => item.id === productId);
@@ -166,7 +165,7 @@
         updateCartInStorage(cart);
     }
 
-    // 🆕 FUNÇÃO ADICIONADA (substitui o antigo removeFromCart): Diminui a quantidade em 1. Se for 1, remove o item.
+    // Diminui a quantidade em 1. Se for 1, remove o item.
     function decreaseQuantity(productId) {
         let cart = JSON.parse(localStorage.getItem('cart')) || [];
         const itemIndex = cart.findIndex(item => item.id === productId);
@@ -182,15 +181,12 @@
         updateCartInStorage(cart);
     }
 
-    // 🆕 FUNÇÃO ADICIONADA: Remove TODAS as unidades de um item (Botão de Lixo)
+    //Remove TODAS as unidades de um item (Botão de Lixo)
     function removeAllOfItem(productId) {
         let cart = JSON.parse(localStorage.getItem('cart')) || [];
         const newCart = cart.filter(item => item.id !== productId);
         updateCartInStorage(newCart);
     }
-    
-    // ❌ FUNÇÃO REMOVIDA: A função `removeFromCart` original foi substituída por `decreaseQuantity`.
-    // ... restante das funções `clearCart()` e `checkout()` não foram alteradas ...
 
     function clearCart() {
         localStorage.removeItem('cart');
@@ -216,8 +212,6 @@
             return;
         }
 
-        // Lógica de finalização de compra (enviar para o backend)
-        // Por simplicidade, vamos apenas limpar o carrinho e simular o sucesso
         alert('Compra finalizada com sucesso! (Esta é uma simulação)');
         clearCart();
         document.getElementById('cart-message').textContent = 'Obrigado pela sua compra!';

@@ -1,7 +1,5 @@
 import pytest
 import json
-# REMOVA: from app import app, db ❌
-# Importe apenas o db do arquivo isolado
 from database import db 
 from models.product_model import Product
 
@@ -38,7 +36,6 @@ def product_setup_client(flask_app):
 # TESTES DE ROTA (INTEGRAÇÃO)
 # ====================================================================
 
-# Troque 'test_client' pelo novo nome do fixture: product_setup_client
 def test_get_all_products(product_setup_client):
     response = product_setup_client.get('/api/products')
     assert response.status_code == 200

@@ -1,7 +1,7 @@
 # backend/tests/conftest.py
 import pytest
 from app import create_app
-from database import db  # Importe o db do arquivo isolado
+from database import db  
 
 @pytest.fixture(scope='session')
 def flask_app():
@@ -14,8 +14,6 @@ def flask_app():
     
     # Contexto para a aplicação (necessário para rodar o db)
     with app.app_context():
-        # 🚨 MELHORIA: Importar Modelos para garantir que o SQLAlchemy os conheça!
-        # Isso garante que db.create_all() crie as tabelas.
         from models.user_model import User
         from models.product_model import Product
         from models.order_model import Order 
@@ -27,7 +25,7 @@ def flask_app():
         yield app
         
         # 3. Limpa o banco de dados após o fim da sessão de testes
-        db.session.remove() # Boa prática para limpar a sessão
+        db.session.remove() 
         db.drop_all()
 
 @pytest.fixture(scope='function')

@@ -89,7 +89,6 @@
 
     <script src="js/script.js"></script>
     <script>
-        // Exemplo de como o JS pode interagir para mostrar/esconder itens da navegação
         document.addEventListener('DOMContentLoaded', () => {
     const token = localStorage.getItem('token');
     const userRole = localStorage.getItem('role');
@@ -114,7 +113,6 @@
         }
     } else {
         console.log("Nenhum token encontrado. Mantendo links de login/registro visíveis.");
-        // Opcional: garantir que nav-admin está escondido se não há token
         const navAdmin = document.getElementById('nav-admin');
         if (navAdmin) navAdmin.style.display = 'none';
     }

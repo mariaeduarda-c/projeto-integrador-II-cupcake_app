@@ -1,7 +1,7 @@
 # backend/app.py (CÓDIGO REFATORADO)
 
 from flask import Flask, request, jsonify
-from database import db  # 👈 AGORA IMPORTAMOS DO database.py!
+from database import db  
 from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 import datetime
@@ -15,10 +15,8 @@ from werkzeug.utils import secure_filename
 
 def create_app(test_config=None):
     app = Flask(__name__)
-    # Substitua '5500' pela porta que seu Live Server estiver usando
     CORS(app)
 
-    # Configuração do Flask
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'minha_chave_secreta_muito_segura')
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///cupcake.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -30,7 +28,7 @@ def create_app(test_config=None):
     db.init_app(app)
 
     # 2. IMPORTAÇÃO DOS MÓDULOS MVC (APÓS db.init_app)
-    # Isso quebra o ciclo de importação
+
     from models.user_model import User
     from models.product_model import Product
     from models.order_model import Order
@@ -41,8 +39,6 @@ def create_app(test_config=None):
     from services.auth_service import AuthService
     
     # 3. Inicializa as classes de serviço, modelo e controller
-    # 💡 CÓDIGO CORRIGIDO E ADICIONADO AQUI: Define e Cria a Pasta de Upload
-    # -----------------------------------------------------------------
     UPLOAD_FOLDER = os.path.join(os.getcwd(), 'static', 'images')
     if not os.path.exists(UPLOAD_FOLDER):
         os.makedirs(UPLOAD_FOLDER)
@@ -52,12 +48,6 @@ def create_app(test_config=None):
     product_controller = ProductController(db, Product, APIView)
     admin_controller = AdminController(db, User, Product, APIView, UPLOAD_FOLDER)
 
-    # -----------------------------------------------------------
-    # Decoradores (Definidos DENTRO da função ou usando o app que foi criado)
-    # -----------------------------------------------------------
-    
-    # Decorador para verificar token JWT
-    # Usa o 'app' que acabou de ser criado
     def token_required(f):
         @wraps(f)
         def decorated(*args, **kwargs):
@@ -117,16 +107,12 @@ def create_app(test_config=None):
     
     @app.route('/', methods=['GET'])
     def home():
-        # Retorna uma resposta JSON simples para confirmar que o servidor está funcionando
         return jsonify({'message': 'Bem-vindo à API Cupcake Delícias! Servidor Flask Rodando.'})
-    # 👆 FIM DA ADIÇÃO
 
     @app.route('/api/login', methods=['POST'])
     def login_user():
-        # Passa a chave secreta para o controlador, se necessário
         return auth_controller.login(app.config['SECRET_KEY'])
-
-    # Rotas de Produtos (públicas)
+    
     @app.route('/api/products', methods=['GET'])
     def get_all_products():
         return product_controller.get_products()
@@ -134,8 +120,7 @@ def create_app(test_config=None):
     @app.route('/api/products/<int:product_id>', methods=['GET'])
     def get_single_product(product_id):
         return product_controller.get_product_by_id(product_id)
-
-    # Rotas de Administração (requer token e role 'admin')
+    
     @app.route('/api/admin/products', methods=['POST'])
     @admin_required
     def create_product(current_user): 
@@ -172,19 +157,17 @@ if __name__ == '__main__':
     
     # 1. Inicialização do Banco de Dados e Dados Iniciais
     with app.app_context():
-        # Importações locais necessárias para garantir que os Modelos sejam carregados
+    
         from models.user_model import User
         from models.product_model import Product
         
         db.create_all()
-
-        # Adicionar um usuário admin se não existir
         if not User.query.filter_by(email='admin@cupcake.com').first():
             admin_user = User(
-                public_id=str(uuid.uuid4()), # Geração correta do public_id
+                public_id=str(uuid.uuid4()), 
                 username='Administrador',
                 email='admin@cupcake.com',
-                # Certifique-se de que generate_password_hash está importado
+               
                 password_hash=generate_password_hash('admin123', method='pbkdf2:sha256'),
                 role='admin'
             )
@@ -192,7 +175,6 @@ if __name__ == '__main__':
             db.session.commit()
             print("Usuário administrador 'admin@cupcake.com' criado com senha 'admin123'.")
 
-        # Adicionar produtos de exemplo
         if not Product.query.first():
             products_data = [
                 {'name': 'Cupcake de Chocolate', 'description': 'Delicioso cupcake de chocolate com cobertura de ganache.', 'price': 7.50, 'image_url': '../images/cupcake1.jpg'},

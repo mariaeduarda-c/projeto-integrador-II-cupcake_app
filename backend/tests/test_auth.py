@@ -4,9 +4,6 @@ import uuid
 from werkzeug.security import generate_password_hash
 from database import db  # Importa a instância DB isolada
 
-# A importação dos Modelos/Serviços é feita aqui, pois não causam ciclo
-# de importação com o app refatorado, mas devem ser usados dentro de um
-# contexto de app (app_context) ao interagir com o DB.
 from models.user_model import User
 from services.auth_service import AuthService
 from views.api_view import APIView

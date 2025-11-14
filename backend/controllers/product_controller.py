@@ -1,4 +1,4 @@
-from flask import request, url_for, current_app # Importamos url_for e current_app
+from flask import request, url_for, current_app 
 from database import db
 from models.product_model import Product
 from werkzeug.exceptions import InternalServerError # Para um tratamento de erro mais limpo
@@ -23,15 +23,11 @@ class ProductController:
                     product_dict = product.to_dict()
                     
                     db_image_path = product_dict['image_url']
-                    
-                    # 🛠️ CORREÇÃO: Usamos url_for para gerar a URL completa para o navegador.
-                    # O 'filename' deve ser o caminho relativo à pasta 'static'.
+
                     try:
                         product_dict['image_url'] = url_for('static', filename=db_image_path, _external=True)
                     except Exception as e:
-                        # Em caso de erro (caminho inválido), usamos um fallback (placeholder)
                         print(f"ATENÇÃO: Não foi possível gerar URL para o produto ID {product_dict['id']}. Erro: {e}")
-                        # Substitua por um placeholder se a imagem for inválida
                         product_dict['image_url'] = '/static/images/placeholder.jpg' 
 
                     products_list_with_urls.append(product_dict)
@@ -55,7 +51,6 @@ class ProductController:
 
         product_dict = product.to_dict()
         
-        # 💡 Aplica a correção também para a visualização de produto único
         with current_app.app_context():
             try:
                 product_dict['image_url'] = url_for('static', filename=product_dict['image_url'], _external=True)

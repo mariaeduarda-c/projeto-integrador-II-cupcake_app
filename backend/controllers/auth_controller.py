@@ -1,7 +1,7 @@
 from flask import request, jsonify
 import jwt
 import datetime
-from datetime import datetime, timedelta, UTC # <--- NOVA IMPORTAÇÃO
+from datetime import datetime, timedelta, UTC 
 
 class AuthController:
     def __init__(self, auth_service, api_view):

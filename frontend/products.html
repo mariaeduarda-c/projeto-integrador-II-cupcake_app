@@ -117,8 +117,6 @@
  
 });
 
-       // products.html - Substitua a sua função loadAllProducts inteira
-
 async function loadAllProducts() {
     try {
         const response = await fetch('http://127.0.0.1:5000/api/products');
@@ -133,8 +131,6 @@ async function loadAllProducts() {
         }
 
         products.forEach(product => {
-            // 💡 CORREÇÃO: USE O CAMINHO DIRETAMENTE, POIS O FLASK JÁ O CORRIGIU.
-            // O valor de product.image_url já deve ser a URL completa (ex: http://.../static/images/...)
             const finalImageUrl = product.image_url; 
 
             const productCard = `
