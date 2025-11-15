@@ -37,14 +37,23 @@ def create_app(test_config=None):
     # Inicializa o DB com o App
     db.init_app(app)
 
+
+    # IMPORTAÇÃO DOS MÓDULOS MVC (APÓS db.init_app)
+
+    from models.user_model import User
+    from models.product_model import Product
+    from models.order_model import Order
+    from views.api_view import APIView
+    from controllers.auth_controller import AuthController
+    from controllers.product_controller import ProductController
+    from controllers.admin_controller import AdminController
+    from services.auth_service import AuthService
+
     with app.app_context():
         try:
             # 1. Cria todas as tabelas (apenas se não existirem)
             db.create_all() 
 
-            # 2. Lógica de criação do Administrador 
-            from models.user_model import User
-            from models.product_model import Product
             from werkzeug.security import generate_password_hash
             import uuid
 
@@ -77,17 +86,6 @@ def create_app(test_config=None):
             # Captura qualquer erro de inicialização e impede o crash
             print(f"ATENÇÃO: Erro de inicialização do DB: {e}")
             pass
-
-    # IMPORTAÇÃO DOS MÓDULOS MVC (APÓS db.init_app)
-
-    from models.user_model import User
-    from models.product_model import Product
-    from models.order_model import Order
-    from views.api_view import APIView
-    from controllers.auth_controller import AuthController
-    from controllers.product_controller import ProductController
-    from controllers.admin_controller import AdminController
-    from services.auth_service import AuthService
     
     #  Inicializa as classes de serviço, modelo e controller
     UPLOAD_FOLDER = os.path.join(os.getcwd(), 'static', 'images')
