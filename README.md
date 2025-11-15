@@ -11,7 +11,7 @@ Este repositório reúne todos os produtos desenvolvidos para o projeto **"Cupca
 
 ## 🚀 Links da Aplicação (Deploy)
 
-Seu projeto está hospedado em arquitetura distribuída (Backend e Frontend separados):
+O projeto está hospedado em arquitetura distribuída (Backend e Frontend separados):
 
 | Componente | URL de Exemplo | Status |
 | :--- | :--- | :--- |
@@ -173,7 +173,7 @@ O projeto seguiu um ciclo de desenvolvimento estruturado, com todas as fases (Si
 | :--- | :--- | :--- |
 | **✅ SP1** | **Planejamento e Modelagem** | O ciclo de planejamento foi **finalizado**. O **Banco de Dados (SQLite)** foi **modelado** e sua documentação estrutural foi concluída. |
 | **✅ SP2** | **Desenvolvimento e Integração** | As implementações do **Back-end (Python/Flask)** e **Front-end (Web)** foram **concluídas e integradas**. O desenvolvimento inicial incluiu a implementação dos **Testes Unitários** no servidor. |
-| **✅ SP3** | **Validação e Melhoria Contínua** | Esta fase focou na **qualidade e usabilidade**. Foi coletado **feedback de pares** e implementadas melhorias críticas no Front-end (ex: estados de Loading, feedback de usuário e esvaziamento do carrinho). O **Laudo de Qualidade** e o **vídeo de demonstração final** foram produzidos e anexados. |
+| **✅ SP3** | **Validação e Melhoria Contínua** | Esta fase focou na **qualidade e usabilidade**. Foi coletado **feedback de pares** e implementadas melhorias críticas no Front-end (ex: estados de Loading, feedback de usuário e esvaziamento do carrinho). O **Laudo de Qualidade** foi produzidos e anexados. |
 
 **Status Final:** O projeto atingiu 100% dos requisitos de entrega, incluindo o preenchimento e finalização do documento **PIT_atividade.docx**.
 
