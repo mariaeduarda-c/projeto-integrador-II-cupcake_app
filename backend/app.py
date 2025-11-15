@@ -37,6 +37,47 @@ def create_app(test_config=None):
     # Inicializa o DB com o App
     db.init_app(app)
 
+    with app.app_context():
+        try:
+            # 1. Cria todas as tabelas (apenas se não existirem)
+            db.create_all() 
+
+            # 2. Lógica de criação do Administrador 
+            from models.user_model import User
+            from models.product_model import Product
+            from werkzeug.security import generate_password_hash
+            import uuid
+
+            if not User.query.filter_by(email='admin@cupcake.com').first():
+                admin_user = User(
+                    public_id=str(uuid.uuid4()), 
+                    username='Administrador',
+                    email='admin@cupcake.com',
+                    password_hash=generate_password_hash('admin123', method='pbkdf2:sha256'),
+                    role='admin'
+                )
+                db.session.add(admin_user)
+
+            # 3. Lógica de criação dos Produtos de Exemplo
+            if not Product.query.first():
+                products_data = [
+                    {'name': 'Cupcake de Chocolate', 'description': 'Delicioso cupcake de chocolate com cobertura de ganache.', 'price': 7.50, 'image_url': '../images/cupcake1.jpg'},
+                    {'name': 'Cupcake de Baunilha', 'description': 'Clássico cupcake de baunilha com buttercream.', 'price': 6.00, 'image_url': '../images/cupcake2.jpg'},
+                    {'name': 'Cupcake Red Velvet', 'description': 'O famoso red velvet com cobertura de cream cheese.', 'price': 8.00, 'image_url': '../images/cupcake3.jpg'},
+                    {'name': 'Cupcake Limão', 'description': 'Refrescante cupcake de limão com merengue suíço.', 'price': 7.00, 'image_url': '../images/cupcake4.jpg'}
+                ]
+                for p_data in products_data:
+                    new_product = Product(**p_data)
+                    db.session.add(new_product)
+            
+            db.session.commit()
+            print("Inicialização do DB e dados iniciais concluída.")
+            
+        except Exception as e:
+            # Captura qualquer erro de inicialização e impede o crash
+            print(f"ATENÇÃO: Erro de inicialização do DB: {e}")
+            pass
+
     # IMPORTAÇÃO DOS MÓDULOS MVC (APÓS db.init_app)
 
     from models.user_model import User
@@ -176,38 +217,5 @@ def create_app(test_config=None):
 if __name__ == '__main__':
     app = create_app()
     
-    # 1. Inicialização do Banco de Dados e Dados Iniciais
-    with app.app_context():
-    
-        from models.user_model import User
-        from models.product_model import Product
-        
-        db.create_all()
-        if not User.query.filter_by(email='admin@cupcake.com').first():
-            admin_user = User(
-                public_id=str(uuid.uuid4()), 
-                username='Administrador',
-                email='admin@cupcake.com',
-               
-                password_hash=generate_password_hash('admin123', method='pbkdf2:sha256'),
-                role='admin'
-            )
-            db.session.add(admin_user)
-            db.session.commit()
-            print("Usuário administrador 'admin@cupcake.com' criado com senha 'admin123'.")
-
-        if not Product.query.first():
-            products_data = [
-                {'name': 'Cupcake de Chocolate', 'description': 'Delicioso cupcake de chocolate com cobertura de ganache.', 'price': 7.50, 'image_url': '../images/cupcake1.jpg'},
-                {'name': 'Cupcake de Baunilha', 'description': 'Clássico cupcake de baunilha com buttercream.', 'price': 6.00, 'image_url': '../images/cupcake2.jpg'},
-                {'name': 'Cupcake Red Velvet', 'description': 'O famoso red velvet com cobertura de cream cheese.', 'price': 8.00, 'image_url': '../images/cupcake3.jpg'},
-                {'name': 'Cupcake Limão', 'description': 'Refrescante cupcake de limão com merengue suíço.', 'price': 7.00, 'image_url': '../images/cupcake4.jpg'}
-            ]
-            for p_data in products_data:
-                new_product = Product(**p_data)
-                db.session.add(new_product)
-            db.session.commit()
-            print("Produtos de exemplo adicionados.")
-
     # 2. Executa o App
     app.run(debug=True)
