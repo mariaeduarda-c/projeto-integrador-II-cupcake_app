@@ -1019,3 +1019,67 @@ main {
         margin-top: 5px;
     }
 }
+/* --- 18. Estilos para Recuperação de Senha e Mensagens Flash --- */
+
+/* Estilo para Links de Recuperação de Senha (Usado em login.html) */
+.auth-container .forgot-password-link {
+    display: block;
+    text-align: right;
+    margin-top: -10px; /* Sobe um pouco o link para ficar junto ao campo de senha */
+    margin-bottom: 10px;
+    font-size: 0.9em;
+    color: var(--button-color); /* Rosa mais forte */
+    font-weight: bold;
+    transition: color 0.2s ease;
+}
+
+.auth-container .forgot-password-link:hover {
+    color: var(--secondary-color); /* Marrom Chocolate no hover */
+    text-decoration: underline;
+}
+
+/* Estilo para a caixa de mensagem de status (usada em forgot_password.html e reset_password.html) */
+.flash-message {
+    padding: 12px 15px;
+    margin: 15px 0;
+    border-radius: var(--border-radius);
+    text-align: center;
+    font-weight: bold;
+    border: 1px solid transparent;
+    font-size: 0.95em;
+}
+
+/* Estilo para Mensagens de Sucesso (E-mail enviado, Senha redefinida) */
+.flash-message.success {
+    background-color: #e6f7ec; /* Fundo verde suave */
+    color: #38761d;
+    border-color: #b7e1cd;
+}
+
+/* Estilo para Mensagens de Erro/Perigo (Token inválido/expirado, Senhas não conferem) */
+.flash-message.danger {
+    background-color: #fcebeb; /* Fundo vermelho/rosa claro de erro */
+    color: #cc0000;
+    border-color: var(--primary-color); /* Usa o rosa suave como borda */
+}
+
+/* Garante que o input na página de recuperação siga o estilo padrão de autenticação */
+#forgot-password-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+#reset-password-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Responsividade ajustada para o link */
+@media (max-width: 480px) {
+    .auth-container .forgot-password-link {
+        text-align: center;
+        margin-top: 5px;
+        margin-bottom: 15px;
+    }
+}

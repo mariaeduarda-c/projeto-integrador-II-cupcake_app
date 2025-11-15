@@ -10,6 +10,7 @@ import os
 import uuid
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
+from flask_mailman import Mail
   
 
 
@@ -23,11 +24,20 @@ def create_app(test_config=None):
 
     if test_config:
         app.config.update(test_config)
-    
-    # 1. Inicializa o DB com o App
+
+    app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER', 'smtp.gmail.com') 
+    app.config['MAIL_PORT'] = os.environ.get('MAIL_PORT', 587)
+    app.config['MAIL_USE_TLS'] = os.environ.get('MAIL_USE_TLS', True)
+    app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME', 'marketingduda45@gmail.com') 
+    app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD', 'Duda10122003')
+    app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_DEFAULT_SENDER', 'seu_email_aqui@gmail.com')
+
+    # Configure os dados no servidor 
+    mail = Mail(app)
+    # Inicializa o DB com o App
     db.init_app(app)
 
-    # 2. IMPORTAÇÃO DOS MÓDULOS MVC (APÓS db.init_app)
+    # IMPORTAÇÃO DOS MÓDULOS MVC (APÓS db.init_app)
 
     from models.user_model import User
     from models.product_model import Product
@@ -38,13 +48,13 @@ def create_app(test_config=None):
     from controllers.admin_controller import AdminController
     from services.auth_service import AuthService
     
-    # 3. Inicializa as classes de serviço, modelo e controller
+    #  Inicializa as classes de serviço, modelo e controller
     UPLOAD_FOLDER = os.path.join(os.getcwd(), 'static', 'images')
     if not os.path.exists(UPLOAD_FOLDER):
         os.makedirs(UPLOAD_FOLDER)
 
     auth_service = AuthService(db, User)
-    auth_controller = AuthController(auth_service, APIView)
+    auth_controller = AuthController(auth_service, APIView, mail)
     product_controller = ProductController(db, Product, APIView)
     admin_controller = AdminController(db, User, Product, APIView, UPLOAD_FOLDER)
 
@@ -115,6 +125,14 @@ def create_app(test_config=None):
     @app.route('/api/login', methods=['POST'])
     def login_user():
         return auth_controller.login(app.config['SECRET_KEY'])
+    @app.route('/api/forgot-password', methods=['POST'])
+
+    def forgot_password_api():
+        return auth_controller.forgot_password()
+        
+    @app.route('/api/reset-password', methods=['POST'])
+    def reset_password_api():
+        return auth_controller.reset_password()
     
     @app.route('/api/products', methods=['GET'])
     def get_all_products():

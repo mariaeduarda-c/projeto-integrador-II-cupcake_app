@@ -11,6 +11,8 @@ class User(db.Model):
     password_hash = db.Column(db.String(128), nullable=False)
     role = db.Column(db.String(20), default='user') # 'user' ou 'admin'
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    reset_token = db.Column(db.String(100), unique=True, nullable=True)
+    reset_expires_at = db.Column(db.DateTime, nullable=True)
 
     def __init__(self, public_id, username, email, password_hash, role='user'):
         self.public_id = public_id or str(uuid.uuid4())
