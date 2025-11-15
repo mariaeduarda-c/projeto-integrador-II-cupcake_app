@@ -108,7 +108,10 @@ def create_app(test_config=None):
     @app.route('/', methods=['GET'])
     def home():
         return jsonify({'message': 'Bem-vindo à API Cupcake Delícias! Servidor Flask Rodando.'})
-
+    @app.route('/health', methods=['GET'])
+    def health():
+        return jsonify({'status': 'ok'}), 200
+    
     @app.route('/api/login', methods=['POST'])
     def login_user():
         return auth_controller.login(app.config['SECRET_KEY'])
